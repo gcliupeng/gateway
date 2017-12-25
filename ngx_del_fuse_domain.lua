@@ -5,6 +5,7 @@
 -- "prefix":"/controller/module/action"
 -- }
 
+
 local cjson = require('cjson.safe')
 local dict = ngx.shared.policy
 
@@ -16,6 +17,37 @@ if(type(dict) == 'nil') then
 	errData.errmsg = 'no dict in the nginx config file'
 	ngx.say(cjson.encode(errData))
 	return
+end
+
+local function checkSignature(data)
+	if type(data) ~= 'table' then
+		return 0
+	end
+	local tmp = {}
+	local i
+	for k,v in pairs(data) do
+		if k ~= 'token' then
+			i = 1
+			for i=1,#tmp do
+				if k < tmp[i] then
+					break
+				end
+			end
+			table.insert(tmp,i,k)
+		end
+	end
+
+	local s=''
+	for i=1,#tmp do
+		s = s..tmp[i]..'='..data[tmp[i]]
+	end
+	local token = ngx.md5(s)
+	ngx.say(token)
+	if token == data['token'] then
+		return 1
+	else
+		return 0
+	end
 end
 
 local body = ngx.req.get_body_data()
@@ -30,6 +62,14 @@ local data = cjson.decode(body)
 if(type(data) == 'nil') then
 	errData.errno = 20003
 	errData.errmsg = 'input data not json'
+	ngx.say(cjson.encode(errData))
+	return
+end
+
+local cr = checkSignature(body)
+if cr != 1 then
+	errData.errno = 20013
+	errData.errmsg = 'token check error'
 	ngx.say(cjson.encode(errData))
 	return
 end
