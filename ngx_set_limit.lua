@@ -110,7 +110,7 @@ if(tonumber(data.qps) < 0) then
 end
 
 local limit_conf_key = 'lc_'..data.domain..'_'..data.url
-local limit_conf = {type = data.type, code = data.code, qps = data.qps, last = -1, current = data.qps}
+local limit_conf = {type = data.type, code = data.code, qps = data.qps, last = -1, current = 0}
 -- 改用cdata
 local rt,msg = dict:safe_set(limit_conf_key,cjson.encode(limit_conf),data.expire)
 if not rt then
