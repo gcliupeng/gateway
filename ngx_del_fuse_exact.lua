@@ -23,16 +23,18 @@ local function checkSignature(data)
 		return 0
 	end
 	local tmp = {}
-	local i
+	local pos
 	for k,v in pairs(data) do
 		if k ~= 'token' then
-			i = 1
+			pos = 1
 			for i=1,#tmp do
 				if k < tmp[i] then
 					break
+				else
+					pos = pos+1
 				end
 			end
-			table.insert(tmp,i,k)
+			table.insert(tmp,pos,k)
 		end
 	end
 
@@ -40,8 +42,8 @@ local function checkSignature(data)
 	for i=1,#tmp do
 		s = s..tmp[i]..'='..data[tmp[i]]
 	end
+
 	local token = ngx.md5(s)
-	ngx.say(token)
 	if token == data['token'] then
 		return 1
 	else
@@ -65,8 +67,8 @@ if(type(data) == 'nil') then
 	return
 end
 
-local cr = checkSignature(body)
-if cr != 1 then
+local cr = checkSignature(data)
+if cr ~= 1 then
 	errData.errno = 20013
 	errData.errmsg = 'token check error'
 	ngx.say(cjson.encode(errData))
@@ -80,14 +82,14 @@ if(type(data.url) == 'nil' or type(data.domain) == 'nil')then
 	return
 end
 
-local rt,msg = dict:delete('fuse_exact_code_'..data.domain..'_'..data.url)
+local rt,msg = dict:delete('fuse_exact_code%_%'..data.domain..'%_%'..data.url)
 
 if not rt then
 	errData.errno = 20005
 	errData.errmsg = 'dict delete error , msg '.. msg 
 	ngx.say(cjson.encode(errData))
 end
-rt,msg = dict:delete('fuse_exact_data_'..data.domain..'_'..data.url)
+rt,msg = dict:delete('fuse_exact_data%_%'..data.domain..'%_%'..data.url)
 
 if not rt then
 	errData.errno = 20005

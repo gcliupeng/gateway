@@ -28,16 +28,18 @@ local function checkSignature(data)
 		return 0
 	end
 	local tmp = {}
-	local i
+	local pos
 	for k,v in pairs(data) do
 		if k ~= 'token' then
-			i = 1
+			pos = 1
 			for i=1,#tmp do
 				if k < tmp[i] then
 					break
+				else
+					pos = pos+1
 				end
 			end
-			table.insert(tmp,i,k)
+			table.insert(tmp,pos,k)
 		end
 	end
 
@@ -45,8 +47,8 @@ local function checkSignature(data)
 	for i=1,#tmp do
 		s = s..tmp[i]..'='..data[tmp[i]]
 	end
+
 	local token = ngx.md5(s)
-	ngx.say(token)
 	if token == data['token'] then
 		return 1
 	else
@@ -71,8 +73,8 @@ if(type(data) == 'nil') then
 	return
 end
 
-local cr = checkSignature(body)
-if cr != 1 then
+local cr = checkSignature(data)
+if cr ~= 1 then
 	errData.errno = 20013
 	errData.errmsg = 'token check error'
 	ngx.say(cjson.encode(errData))
@@ -95,7 +97,7 @@ end
 
 local now = ngx.time()
 -- 首先更新总开关
-local global_switch = "global_"..data.domain
+local global_switch = "global%_%"..data.domain
 local global_data = dict:get(global_switch)
 if global_data then
 	-- 修改值和过期时间
@@ -119,7 +121,7 @@ else
 end
 
 -- 其次，更新具体配置
-local fuse_domain_key = "fprefix_"..data.domain
+local fuse_domain_key = "fprefix%_%"..data.domain
 local fuse_domain_data = dict:get(fuse_domain_key)
 if not fuse_domain_data then
 	fuse_domain_data = {}
@@ -153,8 +155,8 @@ if not rt then
 end
 
 -- 插入返回数据和code
-local fuse_domain_data_key = "fuse_domain_data_"..data.domain.."_"..data.prefix
-local fuse_domain_code_key = "fuse_domain_code_"..data.domain.."_"..data.prefix
+local fuse_domain_data_key = "fuse_domain_data%_%"..data.domain.."%_%"..data.prefix
+local fuse_domain_code_key = "fuse_domain_code%_%"..data.domain.."%_%"..data.prefix
 
 rt,msg = dict:safe_set(fuse_domain_data_key,cjson.encode(data.data),data.expire)
 if not rt then

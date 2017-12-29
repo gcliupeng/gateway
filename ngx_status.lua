@@ -31,18 +31,30 @@ local fuses_domain_d = {}
 for i=1,#keys do
 	local key = keys[i]
 	local domain, prefix, url, arr
-	if string.sub(key,1,16) == 'fuse_exact_data_' then
+	if string.sub(key,1,18) == 'fuse_exact_data%_%' then
 		-- 完全匹配熔断
-		res = string.sub(key,16)
-		arr =  split(res,"_")
+		res = string.sub(key,19)
+		arr =  split(res,"%_%")
 		domain, url = arr[1],arr[2]
-		table.insert(fuses_exact_d,{domain=domain,url=url}) 
-	elseif string.sub(key,1,3) == 'lc_' then
+		local code = dict:get('fuse_exact_code%_%'..domain..'%_%'..url)
+		local data = dict:get('fuse_exact_data%_%'..domain..'%_%'..url)
+		table.insert(fuses_exact_d,{domain=domain,url=url,code=code,data=data}) 
+	elseif string.sub(key,1,19) == 'fuse_domain_data%_%' then
+		-- 匹配前缀熔断
+		res = string.sub(key,20)
+		arr =  split(res,"%_%")
+		domain, prefix = arr[1],arr[2]
+		local code = dict:get('fuse_domain_code%_%'..domain..'%_%'..prefix)
+		local data = dict:get('fuse_domain_data%_%'..domain..'%_%'..prefix)
+		table.insert(fuses_domain_d,{domain=domain,prefix=prefix,code=code,data=data}) 
+	elseif string.sub(key,1,9) == 'limitc%_%' then
 		-- 匹配限流
-		res = string.sub(key,4)
-		arr =  split(res,"_")
+		res = string.sub(key,10)
+		arr =  split(res,"%_%")
 		domain, url = arr[1],arr[2]
-		table.insert(limits_d,{domain=domain,url=url}) 
+		local conf = dict:get(key)
+		conf = cjson.decode(conf)		
+		table.insert(limits_d,{domain=domain,url=url,qps=conf.qps,code=conf.code,type=conf.type}) 
 	end
 end
 local output = {errno = 0 , limits=limits_d, fuses_exact = fuses_exact_d,fuses_domain = fuses_domain_d}

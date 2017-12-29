@@ -12,8 +12,8 @@ _M.check_fuse = function()
 		return _M.OK
 	end
 
-	local code = dict:get('fuse_exact_code_'..host..'_'..uri)
-	local data = dict:get('fuse_exact_data_'..host..'_'..uri)
+	local code = dict:get('fuse_exact_code%_%'..host..'%_%'..uri)
+	local data = dict:get('fuse_exact_data%_%'..host..'%_%'..uri)
 	if(type(data) == 'nil' or type(code) == 'nil') then
 		return _M.OK
 	end

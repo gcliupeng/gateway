@@ -14,7 +14,7 @@ _M.check_limit = function ()
    end
 
    -- 看看是否有配置
-   local limit_conf_key = 'lc'..host..'_'..uri
+   local limit_conf_key = 'limitc%_%'..host..'%_%'..uri
    local limit_conf = dict:get(limit_conf_key)
    if not limit_conf then
       return _M.OK
@@ -38,8 +38,13 @@ _M.check_limit = function ()
 
    if limit_conf.current > limit_conf.qps then
       if limit_conf.type == 1 then
+         local limit_data = dic:get('limitd%_%'..host..'%_%'..uri)
+         if not limit_data then
+            return _M.OK
+         end
+
          ngx.header.limit = 'on'
-         ngx.say(limit_conf.data)
+         ngx.say(limit_data)
       else
 
       end

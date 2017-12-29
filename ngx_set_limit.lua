@@ -7,7 +7,6 @@
 -- "type":1, 1表明gateway直接返回，2表明传给业务方
 -- "data":"{errno:200,\"msg\":\"系统异常\"}", 直接返回时的数据,type==1时必须有
 -- "code":555,直接返回时的code,type==1时必须有
--- "expire":5000
 -- }
 
 local cjson = require('cjson.safe')
@@ -28,16 +27,18 @@ local function checkSignature(data)
 		return 0
 	end
 	local tmp = {}
-	local i
+	local pos
 	for k,v in pairs(data) do
 		if k ~= 'token' then
-			i = 1
+			pos = 1
 			for i=1,#tmp do
 				if k < tmp[i] then
 					break
+				else
+					pos = pos+1
 				end
 			end
-			table.insert(tmp,i,k)
+			table.insert(tmp,pos,k)
 		end
 	end
 
@@ -45,8 +46,8 @@ local function checkSignature(data)
 	for i=1,#tmp do
 		s = s..tmp[i]..'='..data[tmp[i]]
 	end
+
 	local token = ngx.md5(s)
-	ngx.say(token)
 	if token == data['token'] then
 		return 1
 	else
@@ -71,17 +72,17 @@ if(type(data) == 'nil') then
 	return
 end
 
-local cr = checkSignature(body)
-if cr != 1 then
+local cr = checkSignature(data)
+if cr ~= 1 then
 	errData.errno = 20013
 	errData.errmsg = 'token check error'
 	ngx.say(cjson.encode(errData))
 	return
 end
 
-if(type(data.domain) == 'nil' or type(data.url) == 'nil' or type(data.qps) == 'nil' or type(data.expire) == 'nil' or type(data.type) == 'nil') then
+if(type(data.domain) == 'nil' or type(data.url) == 'nil' or type(data.qps) == 'nil' or type(data.type) == 'nil') then
 	errData.errno = 20005
-	errData.errmsg = 'input data error, domain or url or qps or type or expire missing'
+	errData.errmsg = 'input data error, domain or url or qps or type missing'
 	ngx.say(cjson.encode(errData))
 	return
 end
@@ -95,13 +96,6 @@ if(tonumber(data.type) == 1) then
 	end
 end
 
-if(tonumber(data.expire) < 0) then
-	errData.errno = 20004
-	errData.errmsg = 'input expire time < 0 '
-	ngx.say(cjson.encode(errData))
-	return
-end
-
 if(tonumber(data.qps) < 0) then
 	errData.errno = 20006
 	errData.errmsg = 'input pqs < 0 '
@@ -109,10 +103,10 @@ if(tonumber(data.qps) < 0) then
 	return
 end
 
-local limit_conf_key = 'lc_'..data.domain..'_'..data.url
+local limit_conf_key = 'limitc%_%'..data.domain..'%_%'..data.url
 local limit_conf = {type = data.type, code = data.code, qps = data.qps, last = -1, current = 0}
 -- 改用cdata
-local rt,msg = dict:safe_set(limit_conf_key,cjson.encode(limit_conf),data.expire)
+local rt,msg = dict:safe_set(limit_conf_key,cjson.encode(limit_conf))
 if not rt then
 	errData.errno = 20007
 	errData.errmsg = 'dict set error , msg '.. msg 
@@ -120,8 +114,8 @@ if not rt then
 	return
 end
 
-local limit_data_key = 'ld_'..data.domain..'_'..data.url
-local rt,msg = dict:safe_set(limit_data_key,cjson.encode(data.data),data.expire)
+local limit_data_key = 'limitd%_%'..data.domain..'%_%'..data.url
+local rt,msg = dict:safe_set(limit_data_key,cjson.encode(data.data))
 if not rt then
 	errData.errno = 20007
 	errData.errmsg = 'dict set error , msg '.. msg 

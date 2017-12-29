@@ -16,7 +16,7 @@ _M.check_fuse_domain = function()
 	end
 
 	-- 检查总开关
-	local global_switch = "global_"..host
+	local global_switch = "global%_%"..host
 	local global_data = dict:get(global_switch)
 	-- 大部分接口在此返回，熔断某一前缀功能较影响性能
 	if not global_data then
@@ -24,7 +24,7 @@ _M.check_fuse_domain = function()
 	end
 
 	-- 取出前缀列表
-	local fuse_domain_key = "fprefix_"..host
+	local fuse_domain_key = "fprefix%_%"..host
 	local fuse_domain_confs = dict:get(fuse_domain_key)
 	if not fuse_domain_confs then
 		return _M.OK
@@ -48,8 +48,8 @@ _M.check_fuse_domain = function()
 		if string.sub(uri,1,prefixLen) == prefix then
 			if  length_match < prefixLen then
 				-- 判断数据是否过期
-				fuse_domain_data_key = "fuse_domain_data_"..host.."_"..prefix
-				fuse_domain_code_key = "fuse_domain_code_"..host.."_"..prefix
+				fuse_domain_data_key = "fuse_domain_data%_%"..host.."%_%"..prefix
+				fuse_domain_code_key = "fuse_domain_code%_%"..host.."%_%"..prefix
 				local v1 = dict:get(fuse_domain_data_key)
 				local v2 = dict:get(fuse_domain_code_key)
 				if not v1 or not v2 then
