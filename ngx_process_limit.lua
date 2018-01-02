@@ -21,20 +21,22 @@ _M.check_limit = function ()
    end
 
    limit_conf = cjson.decode(limit_conf)
-   if(type(limit_p) == 'nil') then
+   if(type(limit_conf) == 'nil') then
       return _M.OK
    end
 
-   local now_t = ngx.now() --毫秒级
+   local now_t = ngx.now() --三位小数保存毫秒级
    -- 令牌桶算法，速率毫秒级
    if limit_conf.last == -1 then
       limit_conf.last = now_t
    else
-      limit_conf.current = limit_conf.current - (now_t - limit_conf.last)*limit_conf.pqs/1000
+      limit_conf.current = limit_conf.current - (now_t - limit_conf.last)*limit_conf.qps
       if limit_conf.current < 0 then
          limit_conf.current = 0
       end
    end
+
+   -- ngx.log(ngx.WARN,"current:"..limit_conf.current..", time:"..now_t)
 
    if limit_conf.current > limit_conf.qps then
       ngx.header.FLSTATUS = 'limit'
@@ -74,7 +76,7 @@ _M.check_limit = function ()
    -- 更新，写入
    limit_conf.current = limit_conf.current + 1
    limit_conf.last = now_t
-   dict:safe_set(limit_conf_key,json.encode(limit_conf),limit_conf.time - now_t)
+   dict:safe_set(limit_conf_key,cjson.encode(limit_conf))
 end
 
 return _M
