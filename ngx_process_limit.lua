@@ -44,6 +44,7 @@ _M.check_limit = function ()
          if not limit_data then
             return _M.OK
          end
+         ngx.status = limit_conf.code
          ngx.say(limit_data)
       else
          -- 透传给业务线
