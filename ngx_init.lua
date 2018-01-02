@@ -34,7 +34,7 @@ end
 
 -- 重启时拉取全量配置
 local _M = {}
-_M.url = "http://127.0.0.1:90/data"
+_M.url = "http://10.12.16.232/config/gatewayPullConfig"
 _M.ip = "10.0.0.1"
 
 _M.init_fuse_domain = function (fuse_domains)
@@ -164,7 +164,7 @@ _M.init_conf = function ()
 
   if not res then
       -- ngx.say("failed to request: ", err)
-      ngx.log(ngx.WARN, "init gateway conf error , url:".._M.url..", ip:".._M.ip)
+      ngx.log(ngx.WARN, "init gateway conf error , url:".._M.url..", ip:".._M.ip..", err:"..err)
       return
   else
       local data = res.body
