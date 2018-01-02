@@ -37,7 +37,7 @@ _M.check_limit = function ()
    end
 
    if limit_conf.current > limit_conf.qps then
-      ngx.header.limit = 'on'
+      ngx.header.FLSTATUS = 'limit'
       if limit_conf.type == 1 then
          local limit_data = dict:get('limitd%_%'..host..'%_%'..uri)
          if not limit_data then
@@ -59,9 +59,10 @@ _M.check_limit = function ()
          limit_params = cjson.decode(limit_params)
          local header_mark = limit_conf.mark
          for k,v in pairs(limit_params) do
-            if overNum / limit_conf.qps * 100 > tonumber(v)
+            if overNum / limit_conf.qps * 100 > tonumber(v) then
                ngx.header[header_mark] = k
                break
+            end
          end
          return _M.OK
       end

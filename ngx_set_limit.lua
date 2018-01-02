@@ -7,6 +7,8 @@
 -- "type":1, 1表明gateway直接返回，2表明传给业务方
 -- "data":"{errno:200,\"msg\":\"系统异常\"}", 直接返回时的数据,type==1时必须有
 -- "code":555,直接返回时的code,type==1时必须有
+-- "mark":overload , 透传时带入的header
+-- 'param_transfer', array("low"=>10,"normal"=>30,"high"=>50)
 -- }
 
 local cjson = require('cjson.safe')
@@ -21,40 +23,6 @@ if(type(dict) == 'nil') then
 	ngx.say(cjson.encode(errData))
 	return
 end
-
-local function checkSignature(data)
-	if type(data) ~= 'table' then
-		return 0
-	end
-	local tmp = {}
-	local pos
-	for k,v in pairs(data) do
-		if k ~= 'token' then
-			pos = 1
-			for i=1,#tmp do
-				if k < tmp[i] then
-					break
-				else
-					pos = pos+1
-				end
-			end
-			table.insert(tmp,pos,k)
-		end
-	end
-
-	local s=''
-	for i=1,#tmp do
-		s = s..tmp[i]..'='..data[tmp[i]]
-	end
-
-	local token = ngx.md5(s)
-	if token == data['token'] then
-		return 1
-	else
-		return 0
-	end
-end
-
 
 local body = ngx.req.get_body_data()
 if(type(body) == 'nil') then

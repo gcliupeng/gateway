@@ -18,40 +18,6 @@ if(type(dict) == 'nil') then
 	return
 end
 
-local function checkSignature(data)
-	if type(data) ~= 'table' then
-		return 0
-	end
-	local tmp = {}
-	local pos
-	for k,v in pairs(data) do
-		if k ~= 'token' then
-			pos = 1
-			for i=1,#tmp do
-				if k < tmp[i] then
-					break
-				else
-					pos = pos+1
-				end
-			end
-			table.insert(tmp,pos,k)
-		end
-	end
-
-	local s=''
-	for i=1,#tmp do
-		s = s..tmp[i]..'='..data[tmp[i]]
-	end
-
-	local token = ngx.md5(s)
-	if token == data['token'] then
-		return 1
-	else
-		return 0
-	end
-end
-
-
 local body = ngx.req.get_body_data()
 if(type(body) == 'nil') then
 	errData.errno = 20003
@@ -83,7 +49,7 @@ if(type(data.url) == 'nil' or type(data.domain) == 'nil')then
 	return
 end
 
-local rt,msg = dict:delete('lmitc%_%'..data.domain..'%_%'..data.url)
+local rt,msg = dict:delete('limitc%_%'..data.domain..'%_%'..data.url)
 
 if not rt then
 	errData.errno = 20005
