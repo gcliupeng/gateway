@@ -99,5 +99,14 @@ if not rt then
 	ngx.say(cjson.encode(errData))
 	return
 end
+
+rt,msg = dict:delete('limitp%_%'..data.domain..'%_%'..data.url)
+
+if not rt then
+	errData.errno = 20005
+	errData.errmsg = 'dict delete error , msg '.. msg 
+	ngx.say(cjson.encode(errData))
+	return
+end
 ngx.say(cjson.encode(res))
 -- ngx.say(data.key)

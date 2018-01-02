@@ -33,8 +33,8 @@ _M.init_fuse_domain = function (fuse_domains)
         table.insert(fuse_domain_prefixs,item.uri_prefix)
         fuse_domain_map[item.domain] = fuse_domain_prefixs
 
-        local fuse_domain_data_key = "fuse_domain_data_"..item.domain.."_"..item.uri_prefix
-        local fuse_domain_code_key = "fuse_domain_code_"..item.domain.."_"..item.uri_prefix
+        local fuse_domain_data_key = "fuse_domain_data%_%"..item.domain.."%_%"..item.uri_prefix
+        local fuse_domain_code_key = "fuse_domain_code%_%"..item.domain.."%_%"..item.uri_prefix
         local rt,msg = dict:safe_set(fuse_domain_data_key,cjson.encode(item.fuse_return_str),item.persist_time)
         if not rt then
           ngx.log(ngx.WARN,"init gate error, msg :"..msg)
@@ -48,12 +48,12 @@ _M.init_fuse_domain = function (fuse_domains)
     end
          
     for k,v in pairs(fuse_glabal_map) do
-        local global_switch = "global_"..k
+        local global_switch = "global%_%"..k
         dict:safe_set(global_switch,ngx.time()+tonumber(v),tonumber(v))
     end
 
     for k,v in pairs(fuse_domain_map) do
-        local fuse_domain_key = "fprefix_"..k
+        local fuse_domain_key = "fprefix%_%"..k
         dict:safe_set(fuse_domain_key,cjson.encode(v))
     end
     ngx.log(ngx.WARN, "init gateway fuse_domain_conf ok , data:".. cjson.encode(fuse_domains))
@@ -67,8 +67,8 @@ _M.init_fuse_exact = function (fuse_domain_exact)
     for i=1,#fuse_domain_exact do
         local item = fuse_domain_exact[i]
 
-        local data_key = "fuse_exact_data_"..item.domain.."_"..item.uri
-        local code_key = "fuse_exact_code_"..item.domain.."_"..item.uri
+        local data_key = "fuse_exact_data%_%"..item.domain.."%_%"..item.uri
+        local code_key = "fuse_exact_code%_%"..item.domain.."%_%"..item.uri
         local rt,msg = dict:safe_set(data_key,cjson.encode(item.fuse_return_str),item.persist_time)
         if not rt then
           ngx.log(ngx.WARN,"init gate error, msg :"..msg)
@@ -90,9 +90,9 @@ _M.init_limit = function (limit_confs)
     for i=1,#limit_confs do
         local item = limit_confs[i]
 
-        local conf_key = 'lc_'..item.domain..'_'..item.uri
-        local data_key = 'ld_'..item.domain..'_'..item.uri
-        local conf_data = {type = item.lf_limit_type, code = item.lf_return_httpcode, qps = item.qps, last = -1, current = 0, mark =item.mark}
+        local conf_key = 'limitc%_%'..item.domain..'%_%'..item.uri
+        local data_key = 'limitd%_%'..item.domain..'%_%'..item.uri
+        local conf_data = {type = item.lf_limit_type, code = item.lf_return_httpcode, qps = item.qps, last = -1, current = 0, mark =item.lf_param_mark}
         
         local rt,msg = dict:safe_set(data_key,cjson.encode(item.fuse_return_str))
         if not rt then
@@ -104,7 +104,8 @@ _M.init_limit = function (limit_confs)
           ngx.log(ngx.WARN,"init gate error, msg :"..msg)
         end
 
-        local params_key = 'lp_'..item.domain..'_'..item.uri
+        local params_key = 'limitp%_%'..item.domain..'%_%'..item.uri
+        table.sort(item.lf_param_transfer)
         rt,msg = dict:safe_set(params_key,cjson.encode(item.lf_param_transfer))
         if not rt then
           ngx.log(ngx.WARN,"init gate error, msg :"..msg)

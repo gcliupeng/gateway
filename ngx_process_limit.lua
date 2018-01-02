@@ -37,16 +37,33 @@ _M.check_limit = function ()
    end
 
    if limit_conf.current > limit_conf.qps then
+      ngx.header.limit = 'on'
       if limit_conf.type == 1 then
-         local limit_data = dic:get('limitd%_%'..host..'%_%'..uri)
+         local limit_data = dict:get('limitd%_%'..host..'%_%'..uri)
          if not limit_data then
             return _M.OK
          end
-
-         ngx.header.limit = 'on'
          ngx.say(limit_data)
       else
-
+         -- 透传给业务线
+         -- 前一秒超过阈值量
+         local now_s = ngx.time() - 1
+         local overNum = dict:get('limito%_%'..host..'%_%'..uri..'%_%'..now_s)
+         if not overNum then
+            overNum = 1
+         else
+            overNum = tonumber(overNum) + 1
+         end
+         dict:safe_set('limito%_%'..host..'%_%'..uri..'%_%'..now_s,overNum,1)
+         local limit_params = dict:get('limitp%_%'..host..'%_%'..uri)
+         limit_params = cjson.decode(limit_params)
+         local header_mark = limit_conf.mark
+         for k,v in pairs(limit_params) do
+            if overNum / limit_conf.qps * 100 > tonumber(v)
+               ngx.header[header_mark] = k
+               break
+         end
+         return _M.OK
       end
       return   _M.STOP
    end
@@ -54,7 +71,7 @@ _M.check_limit = function ()
    -- 更新，写入
    limit_conf.current = limit_conf.current + 1
    limit_conf.last = now_t
-   dic:safe_set(limit_conf_key,json.encode(limit_conf),limit_conf.time - now_t)
+   dict:safe_set(limit_conf_key,json.encode(limit_conf),limit_conf.time - now_t)
 end
 
 return _M

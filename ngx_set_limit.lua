@@ -104,7 +104,7 @@ if(tonumber(data.qps) < 0) then
 end
 
 local limit_conf_key = 'limitc%_%'..data.domain..'%_%'..data.url
-local limit_conf = {type = data.type, code = data.code, qps = data.qps, last = -1, current = 0}
+local limit_conf = {type = data.type, code = data.code, qps = data.qps, last = -1, current = 0,mark = data.mark}
 -- 改用cdata
 local rt,msg = dict:safe_set(limit_conf_key,cjson.encode(limit_conf))
 if not rt then
@@ -122,5 +122,16 @@ if not rt then
 	ngx.say(cjson.encode(errData))
 	return
 end
+
+local limit_params_key = 'limitp%_%'..data.domain..'%_%'..data.url
+table.sort(data.param_transfer)
+rt,msg = dict:safe_set(limit_params_key,cjson.encode(data.param_transfer))
+if not rt then
+	errData.errno = 20007
+	errData.errmsg = 'dict set error , msg '.. msg 
+	ngx.say(cjson.encode(errData))
+	return
+end
+
 ngx.say(cjson.encode(res))
 -- ngx.say(data.key)
