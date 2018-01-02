@@ -38,6 +38,7 @@ _M.check_limit = function ()
 
    if limit_conf.current > limit_conf.qps then
       ngx.header.FLSTATUS = 'limit'
+      ngx.header.limit = 'on'
       if limit_conf.type == 1 then
          local limit_data = dict:get('limitd%_%'..host..'%_%'..uri)
          if not limit_data then

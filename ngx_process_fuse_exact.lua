@@ -19,6 +19,7 @@ _M.check_fuse = function()
 	end
 	-- ngx.say while stop the phase loop and finilize request
 	ngx.header.FLSTATUS = 'fuse_exact'
+	ngx.header.fuse = 'on'
 	ngx.status = code
 	ngx.say(data)
  	return _M.STOP
