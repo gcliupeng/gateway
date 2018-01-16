@@ -70,12 +70,10 @@ end
 
 local i
 local have = 0
-for i=1,#fuse_domain_data do
-	if fuse_domain_data[i] == data.prefix then
-		have =1
-		table.remove(fuse_domain_data,i)
-		break
-	end
+if type(fuse_domain_data[data.prefix]) ~='nil' then
+	have =1
+	fuse_domain_data[data.prefix] = nil
+	-- table.remove(fuse_domain_data,data.prefix)
 end
 
 local rt,msg
