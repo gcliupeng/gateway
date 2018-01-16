@@ -92,27 +92,16 @@ local fuse_domain_key = "fprefix%_%"..data.domain
 local fuse_domain_data = dict:get(fuse_domain_key)
 if not fuse_domain_data then
 	fuse_domain_data = {}
-	table.insert(fuse_domain_data,data.prefix)
+	fuse_domain_data[data.prefix] = 1
+	-- table.insert(fuse_domain_data,data.prefix)
 else
 	fuse_domain_data = cjson.decode(fuse_domain_data)
 	if not fuse_domain_data then
 		fuse_domain_data = {}
-		table.insert(fuse_domain_data,data.prefix)
-	else
-		-- 遍历，插入
-		local i
-		local have = 0
-		for i=1,#fuse_domain_data do
-			if fuse_domain_data[i] == data.prefix then
-				have =1
-				break
-			end
-		end
-		if have == 0 then
-			table.insert(fuse_domain_data,data.prefix)
-		end
 	end
+	fuse_domain_data[data.prefix] = 1
 end
+
 rt,msg = dict:safe_set(fuse_domain_key,cjson.encode(fuse_domain_data))
 if not rt then
 	errData.errno = 20005

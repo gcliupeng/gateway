@@ -42,24 +42,31 @@ _M.check_fuse_domain = function()
 	local fuse_domain_data
 	local fuse_domain_code
 	local needSave = 0
-	for i=1,#fuse_domain_confs do
-		local prefixLen = string.len(fuse_domain_confs[i])
-		local prefix = fuse_domain_confs[i]
+	local typei
+	for k,v in pairs(fuse_domain_confs) do
+		local prefix = k
+		local prefixLen = string.len(prefix)
 		if string.sub(uri,1,prefixLen) == prefix then
 			if  length_match < prefixLen then
-				-- 判断数据是否过期
-				fuse_domain_data_key = "fuse_domain_data%_%"..host.."%_%"..prefix
-				fuse_domain_code_key = "fuse_domain_code%_%"..host.."%_%"..prefix
-				local v1 = dict:get(fuse_domain_data_key)
-				local v2 = dict:get(fuse_domain_code_key)
-				if not v1 or not v2 then
-					table.remove(fuse_domain_confs,i)
-					needSave = 1
+				if tonumber(v) == 1 then
+					fuse_domain_data_key = "fuse_domain_data%_%"..host.."%_%"..prefix
+					fuse_domain_code_key = "fuse_domain_code%_%"..host.."%_%"..prefix
+					local v1 = dict:get(fuse_domain_data_key)
+					local v2 = dict:get(fuse_domain_code_key)
+					if not v1 or not v2 then
+						-- table.remove(fuse_domain_confs,k)
+						fuse_domain_confs[k] = nil
+						needSave = 1
+					else
+						fuse_domain_data = v1
+						fuse_domain_code = v2
+						length_match = prefixLen
+						prex_match = prefix
+						typei = 1
+					end
 				else
-					fuse_domain_data = v1
-					fuse_domain_code = v2
-					length_match = prefixLen
-					prex_match = prefix
+					typei = 0
+					length_match = prefixLen 	
 				end
 			end
 		end
@@ -69,12 +76,15 @@ _M.check_fuse_domain = function()
 		dict:safe_set(fuse_domain_key,cjson.encode(fuse_domain_confs))
 	end
 
-	if length_match ~= -1 then
+	if length_match ~= -1 and typei == 1 then
 		ngx.header.FLSTATUS = 'fuse_domain'
 		ngx.header.fuse = 'on'
 		ngx.status = fuse_domain_code
 		ngx.say(fuse_domain_data)
+		return _M.STOP 
+	else
+		return _M.OK
 	end
-	return _M.STOP 
 end
+
 return _M

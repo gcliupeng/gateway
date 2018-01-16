@@ -34,7 +34,7 @@ end
 
 -- 重启时拉取全量配置
 local _M = {}
-_M.url = "http://10.12.16.232/config/gatewayPullConfig"
+_M.url = "http://127.0.0.1:90/data"
 _M.ip = "10.0.0.1"
 
 _M.init_fuse_domain = function (fuse_domains)
@@ -64,21 +64,23 @@ _M.init_fuse_domain = function (fuse_domains)
         if not fuse_domain_prefixs then
             fuse_domain_prefixs = {}
         end
-        table.insert(fuse_domain_prefixs,item.uri_prefix)
+        --判断type
+        local typei = item.type
+        fuse_domain_prefixs[item.uri_prefix] = typei
         fuse_domain_map[item.domain] = fuse_domain_prefixs
+        if tonumber(typei) == 1 then
+            local fuse_domain_data_key = "fuse_domain_data%_%"..item.domain.."%_%"..item.uri_prefix
+            local fuse_domain_code_key = "fuse_domain_code%_%"..item.domain.."%_%"..item.uri_prefix
+            local rt,msg = dict:safe_set(fuse_domain_data_key,cjson.encode(item.fuse_return_str),item.persist_time)
+            if not rt then
+              ngx.log(ngx.WARN,"init gate error, msg :"..msg)
+            end
 
-        local fuse_domain_data_key = "fuse_domain_data%_%"..item.domain.."%_%"..item.uri_prefix
-        local fuse_domain_code_key = "fuse_domain_code%_%"..item.domain.."%_%"..item.uri_prefix
-        local rt,msg = dict:safe_set(fuse_domain_data_key,cjson.encode(item.fuse_return_str),item.persist_time)
-        if not rt then
-          ngx.log(ngx.WARN,"init gate error, msg :"..msg)
+            rt,msg = dict:safe_set(fuse_domain_code_key,item.fuse_return_httpcode,item.persist_time)
+            if not rt then
+                ngx.log(ngx.WARN,"init gate error, msg :"..msg)
+            end
         end
-
-        rt,msg = dict:safe_set(fuse_domain_code_key,item.fuse_return_httpcode,item.persist_time)
-        if not rt then
-          ngx.log(ngx.WARN,"init gate error, msg :"..msg)
-        end
-
     end
          
     for k,v in pairs(fuse_glabal_map) do
