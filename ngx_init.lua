@@ -1,37 +1,3 @@
--- 定义全局函数
-function checkSignature(data)
-  if type(data) ~= 'table' then
-    return 0
-  end
-  local tmp = {}
-  local pos
-  for k,v in pairs(data) do
-    if k ~= 'token' and type(v)~='table' then
-      pos = 1
-      for i=1,#tmp do
-        if k < tmp[i] then
-          break
-        else
-          pos = pos+1
-        end
-      end
-      table.insert(tmp,pos,k)
-    end
-  end
-
-  local s=''
-  for i=1,#tmp do
-    s = s..tmp[i]..'='..data[tmp[i]]
-  end
-
-  local token = ngx.md5(s)
-  if token == data['token'] then
-    return 1
-  else
-    return 0
-  end
-end
-
 -- 重启时拉取全量配置
 local _M = {}
 _M.url = "http://127.0.0.1:90/data"
@@ -159,7 +125,7 @@ _M.init_conf = function ()
 
   local http = require "resty.http"
   local httpc = http.new()
-  local res, err = httpc:request_uri(_M.url, {
+  local res, err = httpc:request_uri(_M.url.."?ip=".._M.ip, {
         method = "GET",
         body = "ip=".._M.ip,
       })

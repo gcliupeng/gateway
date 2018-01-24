@@ -1,3 +1,4 @@
+return function()
 -- 返回当前nginx状态
 local cjson = require('cjson')
 local dict = ngx.shared.policy
@@ -59,3 +60,4 @@ for i=1,#keys do
 end
 local output = {errno = 0 , limits=limits_d, fuses_exact = fuses_exact_d,fuses_domain = fuses_domain_d}
 ngx.say(cjson.encode(output))
+end

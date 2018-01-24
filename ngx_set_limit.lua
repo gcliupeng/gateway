@@ -1,3 +1,5 @@
+return function ()
+
 -- 设置某一个url的限流策略
 -- 输入post，json格式
 -- {
@@ -83,7 +85,7 @@ if not rt then
 end
 
 local limit_data_key = 'limitd%_%'..data.domain..'%_%'..data.url
-local rt,msg = dict:safe_set(limit_data_key,cjson.encode(data.data))
+local rt,msg = dict:safe_set(limit_data_key,data.data)
 if not rt then
 	errData.errno = 20007
 	errData.errmsg = 'dict set error , msg '.. msg 
@@ -103,3 +105,4 @@ end
 
 ngx.say(cjson.encode(res))
 -- ngx.say(data.key)
+end

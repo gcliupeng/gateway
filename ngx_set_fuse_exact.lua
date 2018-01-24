@@ -1,3 +1,4 @@
+return function ()
 -- 设置某一个url的熔断策略
 -- 输入post，json格式
 -- {
@@ -77,3 +78,4 @@ if not rt then
 end
 ngx.say(cjson.encode(res))
 -- ngx.say(data.key)
+end

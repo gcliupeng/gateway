@@ -1,3 +1,4 @@
+return function ()
 -- 删除某一个url的熔断策略
 -- 输入post，json格式
 -- {
@@ -107,3 +108,4 @@ else
 end
 
 ngx.say(cjson.encode(res))
+end

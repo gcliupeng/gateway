@@ -1,3 +1,4 @@
+return function ()
 -- 设置某一个domain+prefix的熔断策略
 -- 输入post，json格式
 -- {
@@ -187,3 +188,4 @@ for i=1,#dataA do
 	end
 end
 ngx.say(cjson.encode(res))
+end
