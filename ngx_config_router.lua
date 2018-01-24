@@ -45,7 +45,7 @@ controllers.fuse_set_domain_batch = require('ngx_set_fuse_domain_batch')
 controllers.limit_set = require('ngx_set_limit')
 controllers.limit_delete = require('ngx_del_limit')
 
-controllers.status = require('ngx_status')
+controllers.flstatus = require('ngx_status')
 
 controllers.config_dump = require('ngx_config_dump')
 
