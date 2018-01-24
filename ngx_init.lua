@@ -113,7 +113,7 @@ _M.init_limit = function (limit_confs)
           ngx.log(ngx.WARN,"init gate error, msg :"..msg)
         end
     end
-    ngx.log(ngx.WARN, "init gateway fuse_domain_exact_conf ok , data:".. cjson.encode(fuse_domain_exact))
+    ngx.log(ngx.WARN, "init gateway limit ok , data:".. cjson.encode(limit_confs))
 end
 
 _M.init_conf = function ()

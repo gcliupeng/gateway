@@ -1,0 +1,6 @@
+部署步骤
+(1) 拉代码
+(2) openresty 配置用ngx.conf
+(3) 修改ngx.conf里的user
+(4) 修改ngx.conf里所有的绝对路径，或者建立软链
+(5) 修改ngx_init.lua中的写死的url和本机ip
