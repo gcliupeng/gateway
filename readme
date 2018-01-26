@@ -4,3 +4,33 @@
 (3) 修改ngx.conf里的user
 (4) 修改ngx.conf里所有的绝对路径，或者建立软链
 (5) 修改ngx_init.lua中的写死的url和本机ip
+
+el 和 filebeat 配置
+(1) 下载es和filebeat
+(2) 建立es账号，切换，启动es
+(3) 修改filebeat配置
+	- type: log
+
+  	# Change to true to enable this prospector configuration.
+  	enabled: true
+
+  	# Paths that should be crawled and fetched. Glob based paths.
+  	paths:
+    	/usr/local/openresty/nginx/logs/limit.log
+
+
+
+
+    output.elasticsearch:
+  		# Array of hosts to connect to.
+  		hosts: ["localhost:9200"]
+  		index: "limit-%{+yyyy.MM.dd}"
+  		# Optional protocol and basic auth credentials.
+  		#protocol: "https"
+  		#username: "elastic"
+  		#password: "changeme"
+
+	setup.template.name: "limit-%{+yyyy.MM.dd}"
+	setup.template.pattern: "limit-%{+yyyy.MM.dd}"
+
+(4) 启动filebeat

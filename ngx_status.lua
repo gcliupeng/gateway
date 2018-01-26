@@ -58,6 +58,7 @@ for i=1,#keys do
 		table.insert(limits_d,{domain=domain,url=url,qps=conf.qps,code=conf.code,type=conf.type}) 
 	end
 end
-local output = {errno = 0 , limits=limits_d, fuses_exact = fuses_exact_d,fuses_domain = fuses_domain_d}
+local data_all = {limits=limits_d, fuses_exact = fuses_exact_d,fuses_domain = fuses_domain_d}
+local output = {errno = 0 , errmsg = 'ok', data = data_all}
 ngx.say(cjson.encode(output))
 end

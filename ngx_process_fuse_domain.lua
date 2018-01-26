@@ -78,7 +78,7 @@ _M.check_fuse_domain = function()
 
 	if length_match ~= -1 and typei == 1 then
 		ngx.header.FLSTATUS = 'fuse_domain'
-		ngx.header.fuse = 'on'
+		ngx.header.fuse_domain = 'on'
 		ngx.status = fuse_domain_code
 		ngx.say(fuse_domain_data)
 		return _M.STOP 
