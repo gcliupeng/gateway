@@ -54,8 +54,15 @@ for i=1,#keys do
 		arr =  split(res,"%_%")
 		domain, url = arr[1],arr[2]
 		local conf = dict:get(key)
-		conf = cjson.decode(conf)		
-		table.insert(limits_d,{domain=domain,url=url,qps=conf.qps,code=conf.code,type=conf.type}) 
+		conf = cjson.decode(conf)
+		local lone = {domain=domain,url=url,qps=conf.qps,code=conf.code,type=conf.type}
+		if tonumber(conf.type) == 1 then
+			local ldata = dict:get('limitd%_%'..domain..'%_%'..url)
+			if ldata then
+				lone.data = ldata
+			end
+		end
+		table.insert(limits_d,lone) 
 	end
 end
 local data_all = {limits=limits_d, fuses_exact = fuses_exact_d,fuses_domain = fuses_domain_d}
