@@ -153,9 +153,15 @@ _M.init_conf = function ()
           return
       end
 
-      _M.init_fuse_domain(data.fuse_domain)
-      _M.init_fuse_exact(data.fuse_uri)
-      _M.init_limit(data.limit)
+      if data.fuse_domain then
+          _M.init_fuse_domain(data.fuse_domain)
+      end
+      if data.fuse_uri then
+          _M.init_fuse_exact(data.fuse_uri)
+      end
+      if data.limit then
+          _M.init_limit(data.limit)
+      end
       -- bngx.say(cjson.encode(data.fuse_domain))
   end
 end
