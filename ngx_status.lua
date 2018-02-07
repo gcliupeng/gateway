@@ -55,8 +55,9 @@ for i=1,#keys do
 		domain, url = arr[1],arr[2]
 		local conf = dict:get(key)
 		conf = cjson.decode(conf)
-		local lone = {domain=domain,url=url,qps=conf.qps,code=conf.code,type=conf.type}
+		local lone = {domain=domain,url=url,qps=conf.qps,type=conf.type}
 		if tonumber(conf.type) == 1 then
+			lone.code = conf.code
 			local ldata = dict:get('limitd%_%'..domain..'%_%'..url)
 			if ldata then
 				lone.data = ldata
